@@ -13,10 +13,8 @@ using cinn::common::float8;
 constexpr int N=256, H=112, W=112, C=64;
 constexpr int REDUCE_NUMEL = N*H*W;
 
-#include "double_fused.cuh"
-#include "single_fused.cuh"
-#include "no_st_global_single_fused.cuh"
-#include "l2m_no_st_global_single_fused.cuh"
+#include "no_zero_opt.cuh"
+#include "zero_opt.cuh"
 
 int main() {
   cudaSetDevice(0);
@@ -73,34 +71,7 @@ int main() {
   size_t size_var_15935 = sizeof(float) * 896 * 256;
   cudaMalloc((void**)&(var_15935), size_var_15935);
   for (int i = 0; i < 20; ++i) {
-    double_fused<<<224, 1024>>>(
-      // 256x56x56x256
-      elementwise_add_1____GRAD,
-      // 256x56x56x256
-      relu_3__tmp_0____GRAD____RENAME____block0____1,
-      // 256x56x56x256
-      relu_3__tmp_0,
-      // 256x56x56x256
-      conv2d_57__tmp_0,
-      // 256x56x56x256
-      conv2d_56__tmp_0,
-      // 256
-      batch_norm_3__tmp_0,
-      // 256
-      batch_norm_4__tmp_0,
-      // 896x896x256
-      var_15740,
-      // 896x256
-      var_15941,
-      // 896x256
-      var_15938,
-      // 896x256
-      var_15932,
-      // 256x56x56x256
-      var_15742,
-      // 896x256
-      var_15935);
-    single_fused<<<224, 1024>>>(
+    no_zero_opt<<<224, 1024>>>(
       // 256x56x56x256
       elementwise_add_1____GRAD,
       // 256x56x56x256
@@ -128,35 +99,7 @@ int main() {
       // 896x256
       //float* __restrict__ var_15935
     );
-    no_st_global_single_fused<<<224, 1024>>>(
-      // 256x56x56x256
-      elementwise_add_1____GRAD,
-      // 256x56x56x256
-      relu_3__tmp_0____GRAD____RENAME____block0____1,
-      // 256x56x56x256
-      relu_3__tmp_0,
-      // 256x56x56x256
-      // conv2d_57__tmp_0,
-      // 256x56x56x256
-      conv2d_56__tmp_0,
-      // 256
-      batch_norm_3__tmp_0,
-      // 256
-      // batch_norm_4__tmp_0,
-      // 896x896x256
-      // float* __restrict__ var_15740,
-      // 896x256
-      var_15941,
-      // 896x256
-      var_15938,
-      // 896x256
-      var_15932,
-      // 256x56x56x256
-      var_15742//,
-      // 896x256
-      //float* __restrict__ var_15935
-    );
-    l2m_no_st_global_single_fused<<<224, 1024>>>(
+    zero_opt<<<224, 1024>>>(
       // 256x56x56x256
       elementwise_add_1____GRAD,
       // 256x56x56x256
